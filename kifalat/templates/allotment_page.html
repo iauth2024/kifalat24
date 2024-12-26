@@ -1,0 +1,46 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Student Allotment</title>
+    <link rel="stylesheet" href="{% static 'css/styles.css' %}">
+</head>
+<body>
+
+    <h1>Student Allotment</h1>
+    <table border="1">
+        <thead>
+            <tr>
+                <th>Admission Number</th>
+                <th>Name</th>
+                <th>Father's Name</th>
+                <th>Phone</th>
+                <th>Course</th>
+                <th>Class</th>
+                <th>Section</th>
+                <th>Monthly Fees</th>
+                <th>Madarsa Fee</th>
+                <th>Kifalat Amount</th>
+            </tr>
+        </thead>
+        <tbody>
+            {% for student in students %}
+            <tr>
+                <td>{{ student.admission_number }}</td>
+                <td>{{ student.name }}</td>
+                <td>{{ student.father_name }}</td>
+                <td>{{ student.phone }}</td>
+                <td>{{ student.course.name }}</td>
+                <td>{{ student.class_field.name }}</td>
+                <td>{{ student.section.name }}</td>
+                <td>{{ student.monthly_fees }}</td>
+                <td>{{ student.madarsa_fee }}</td>
+                <td>{{ student.kifalat_amount }}</td>
+            </tr>
+            {% endfor %}
+        </tbody>
+    </table>
+
+</body>
+</html>

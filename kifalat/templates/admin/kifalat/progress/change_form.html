@@ -1,0 +1,50 @@
+<!-- templates/admin/kifalat/progress/change_form.html -->
+
+{% extends "admin/change_form.html" %}
+
+{% block content %}
+  {{ block.super }}
+
+  <div style="margin-top: 10px;">
+    <!-- Add Fetch Students button with ID 'fetch-students-button' -->
+    <button type="button" id="fetch-students-button">Fetch Students</button>
+  </div>
+
+  <script>
+    (function($) {
+      $(document).ready(function() {
+        // Fetch Students button click event
+        $('#fetch-students-button').click(function() {
+          // Get the selected Kafeel value
+          var kafeelId = $('#id_kafeel').val();
+
+          // If a Kafeel is selected, make an AJAX request to fetch students
+          if (kafeelId) {
+            fetchStudents(kafeelId);
+          } else {
+            alert('Please select a Kafeel.');
+          }
+        });
+
+        // Function to fetch and update students based on the selected Kafeel
+        function fetchStudents(kafeelId) {
+          // Make an AJAX request to your Django view to get the students
+          $.ajax({
+            url: '/admin/kifalat/fetch_students/',  // Update with your actual URL
+            data: {
+              kafeel_id: kafeelId,
+            },
+            success: function(data) {
+              // Update the Student dropdown with the received data
+              $('#id_student').html(data);
+              alert('Students fetched successfully!');
+            },
+            error: function() {
+              alert('Error fetching students.');
+            }
+          });
+        }
+      });
+    })(django.jQuery);
+  </script>
+{% endblock %}

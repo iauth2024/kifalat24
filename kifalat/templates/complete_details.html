@@ -1,0 +1,151 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Sponsor Dashboard</title>
+    
+    <!-- CSS styles -->
+    <style>
+        body {
+            font-family: Arial, sans-serif;
+            padding: 20px;
+            background-color: #f5f5f5;
+        }
+
+        h1{
+            color: #333;
+            text-align: center;
+        }
+        h2{
+            color: #de0a7b;
+            text-align: center;
+        }
+
+        /* Progress details section */
+        .progress-details-section {
+            margin-top: 20px;
+            background-color: #8cea56;
+            border: 1px solid #16d413;
+            border-radius: 5px;
+            padding: 20px;
+            overflow-x: auto; /* Add horizontal scroll if needed */
+        }
+
+        .progress-details-table {
+            border-collapse: collapse;
+            width: 100%;
+        }
+
+        .progress-details-table th,
+        .progress-details-table td {
+            border: 1px solid #ddd;
+            padding: 8px;
+            text-align: center;
+        }
+
+        .progress-details-table th {
+            background-color: #9cf85b;
+        }
+
+        /* Student details section */
+        .student-details-section {
+            margin-top: 20px;
+            display: flex;
+            justify-content: space-between;
+        }
+
+        .student-details-card {
+            width: 48%;
+            background-color: #eef3eb;
+            border: 1px solid #6908f9;
+            border-radius: 5px;
+            padding: 20px;
+            margin-bottom: 20px;
+        }
+
+        /* Monthly progress section */
+        .monthly-progress-section {
+            margin-top: 20px;
+        }
+
+        .monthly-progress-table {
+            width: 100%;
+            border-collapse: collapse;
+            margin-top: 10px;
+        }
+
+        .monthly-progress-table th,
+        .monthly-progress-table td {
+            padding: 8px;
+            border: 1px solid #1929e1;
+            text-align: center;
+        }
+
+        .monthly-progress-table th {
+            background-color: #37ca1a;
+        }
+    </style>
+
+    <!-- JavaScript -->
+    <script>
+        // Add JavaScript functionality if needed
+    </script>
+</head>
+<body>
+    <h1>Kafeel Dashboard  {{ kafeel.number }} </h1>
+    <h2>Academic Year  : 2024-25  ( 1445-46)</h2>
+    
+
+    <!-- Student details section -->
+    <div class="student-details-section">
+        <!-- First Card -->
+        <div class="student-details-card">
+            <h3>Student Details</h3>
+            <p><strong>Name:</strong> {{ student.name }}</p>
+            <p><strong>Father's Name:</strong> {{ student.father_name }}</p>
+            <p><strong>Admission Number:</strong> {{ student.admission_number }}</p>
+            <p><strong>Course:</strong> {{ student.course }}</p>
+            <p><strong>Class:</strong> {{ student.class_field}}</p>
+            <p><strong>Address:</strong> {{ student.address }}</p>
+            <p><strong>Sponsoring Since:</strong> {{ student.sponsoring_since }}</p>
+        </div>
+
+        <!-- Second Card -->
+        <div class="student-details-card">
+            <h3>Kafeel & Tawassut Details</h3>
+            <p><strong>Kafeel Name:</strong> {{ student.kafeel }}</p>
+            <p><strong>Kafeel Number:</strong> {{ student.kafeel.number }}</p>
+            <p><strong>Kafeel Address:</strong> {{ student.kafeel.address }}</p>
+            <p><strong>Kafeel Phone:</strong> {{ student.kafeel.phone }}</p>
+            <br>
+            <p><strong>Tawassut Name:</strong> {{ student.kafeel.tawassut.name }}</p>
+            <p><strong>Tawassut Phone:</strong> {{ student.kafeel.tawassut.phone }}</p>
+            <p><strong>Student Monthly Fees:</strong> <strong>{{ student.monthly_fees }}</strong></p>
+        </div>
+    </div>
+    <!-- Assuming this code is within your template -->
+<table class="monthly-progress-table">
+    <thead>
+        <tr>
+            <th>Month</th>
+            <th>Mahina</th>
+            <th>Payment Status</th>
+            <th>Receipt Number</th>
+            <th>Amount Paid</th>
+            <th>Study Report</th>
+        </tr>
+    </thead>
+    <tbody>
+        {% for record in  records %}
+        <tr>
+            <td>{{ record.month }}</td>
+            <td>{{ record.mahina }}</td>
+            <td>{{ record.payment_status }}</td>
+            <td>{{ record.receipt_number }}</td>
+            <td>{{ record.amount_paid }}</td>
+            <td>{{ record.study_report }}</td>
+        </tr>
+        {% endfor %}
+    </tbody>
+</table>
