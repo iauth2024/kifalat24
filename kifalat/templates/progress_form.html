@@ -1,0 +1,19 @@
+<!-- progress_form.html -->
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <title>Submit Progress</title>
+</head>
+<body>
+    <h1>Submit Progress for {{ student.name }}</h1>
+
+    <form method="post">
+        {% csrf_token %}
+        {{ form.as_p }}
+
+        <button type="submit">Save Progress</button>
+    </form>
+    <a href="{% url 'student_details' admission_number=student.admission_number %}">Back to Student Details</a>
+</body>
+</html>

@@ -1,0 +1,15 @@
+<!-- kafeel_confirm_delete.html -->
+<!DOCTYPE html>
+<html>
+<head>
+    <title>Delete Kafeel</title>
+</head>
+<body>
+    <h1>Are you sure you want to delete {{ kafeel.name }}?</h1>
+    <form method="post">
+        {% csrf_token %}
+        <button type="submit">Yes, delete</button>
+    </form>
+    <a href="{% url 'kafeel_list' %}">Cancel</a>
+</body>
+</html>

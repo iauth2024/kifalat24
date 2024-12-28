@@ -1,0 +1,38 @@
+<!-- kafeel_list.html -->
+<!DOCTYPE html>
+<html>
+<head>
+    <title>Kafeels List</title>
+</head>
+<body>
+    <h1>Kafeels</h1>
+    <a href="{% url 'kafeel_add' %}">Add New Kafeel</a>
+    <table border="1">
+        <thead>
+            <tr>
+                <th>Number</th>
+                <th>Name</th>
+                <th>Phone</th>
+                <th>Status</th>
+                <th>Monthly Amount</th>
+                <th>Actions</th>
+            </tr>
+        </thead>
+        <tbody>
+            {% for kafeel in kafeels %}
+                <tr>
+                    <td>{{ kafeel.number }}</td>
+                    <td>{{ kafeel.name }}</td>
+                    <td>{{ kafeel.phone }}</td>
+                    <td>{{ kafeel.status }}</td>
+                    <td>{{ kafeel.monthly_amount }}</td>
+                    <td>
+                        <a href="{% url 'kafeel_edit' kafeel.number %}">Edit</a>
+                        <a href="{% url 'kafeel_delete' kafeel.number %}">Delete</a>
+                    </td>
+                </tr>
+            {% endfor %}
+        </tbody>
+    </table>
+</body>
+</html>

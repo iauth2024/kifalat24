@@ -1,0 +1,21 @@
+<!-- tawassut_list.html -->
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Tawassut List</title>
+</head>
+<body>
+    <h1>Tawassut List</h1>
+    <a href="{% url 'tawassut_add' %}">Add Tawassut</a>
+    <ul>
+        {% for tawassut in tawassuts %}
+            <li>{{ tawassut.name }} - 
+                <a href="{% url 'tawassut_edit' tawassut.pk %}">Edit</a> | 
+                <a href="{% url 'tawassut_delete' tawassut.pk %}">Delete</a>
+            </li>
+        {% endfor %}
+    </ul>
+</body>
+</html>

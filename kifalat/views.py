@@ -157,3 +157,131 @@ from .models import Record
 def monthly_progress_view(request):
     progress_data = Record.objects.all()  # Retrieve all records from the Record model
     return render(request, 'monthly_progress.html', {'progress_data': progress_data})
+
+
+###########################################################################################################
+
+# views.py
+from django.shortcuts import render, redirect, get_object_or_404
+from .models import Tawassut, Kafeel, Course, Class, Section, Student, Progress, KafeelStatusUpdate, StudentStatusUpdate, Record
+from .forms import TawassutForm, KafeelForm, CourseForm, ClassForm, SectionForm, StudentForm, ProgressForm, KafeelStatusUpdateForm, StudentStatusUpdateForm, RecordForm
+
+# Tawassut Views
+def tawassut_list(request):
+    tawassuts = Tawassut.objects.all()
+    return render(request, 'tawassut_list.html', {'tawassuts': tawassuts})
+
+def tawassut_add(request):
+    if request.method == 'POST':
+        form = TawassutForm(request.POST)
+        if form.is_valid():
+            form.save()
+            return redirect('tawassut_list')
+    else:
+        form = TawassutForm()
+    return render(request, 'tawassut_form.html', {'form': form})
+
+def tawassut_edit(request, pk):
+    tawassut = get_object_or_404(Tawassut, pk=pk)
+    if request.method == 'POST':
+        form = TawassutForm(request.POST, instance=tawassut)
+        if form.is_valid():
+            form.save()
+            return redirect('tawassut_list')
+    else:
+        form = TawassutForm(instance=tawassut)
+    return render(request, 'tawassut_form.html', {'form': form})
+
+def tawassut_delete(request, pk):
+    tawassut = get_object_or_404(Tawassut, pk=pk)
+    tawassut.delete()
+    return redirect('tawassut_list')
+
+# Repeat similar views for other models (Kafeel, Course, Student, etc.)
+
+
+# views.py
+from django.shortcuts import render, redirect, get_object_or_404
+from .models import Kafeel
+from .forms import KafeelForm
+
+# List of Kafeels
+def kafeel_list(request):
+    kafeels = Kafeel.objects.all()
+    return render(request, 'kafeel_list.html', {'kafeels': kafeels})
+
+# Add a new Kafeel
+def kafeel_add(request):
+    if request.method == 'POST':
+        form = KafeelForm(request.POST)
+        if form.is_valid():
+            form.save()
+            return redirect('kafeel_list')
+    else:
+        form = KafeelForm()
+    return render(request, 'kafeel_form.html', {'form': form})
+
+# Edit a Kafeel
+def kafeel_edit(request, number):
+    kafeel = get_object_or_404(Kafeel, number=number)
+    if request.method == 'POST':
+        form = KafeelForm(request.POST, instance=kafeel)
+        if form.is_valid():
+            form.save()
+            return redirect('kafeel_list')
+    else:
+        form = KafeelForm(instance=kafeel)
+    return render(request, 'kafeel_form.html', {'form': form})
+
+# Delete a Kafeel
+def kafeel_delete(request, number):
+    kafeel = get_object_or_404(Kafeel, number=number)
+    if request.method == 'POST':
+        kafeel.delete()
+        return redirect('kafeel_list')
+    return render(request, 'kafeel_confirm_delete.html', {'kafeel': kafeel})
+
+# views.py
+from django.shortcuts import render, redirect, get_object_or_404
+from .models import Student
+from .forms import StudentForm
+
+# List of Students
+def student_list(request):
+    students = Student.objects.all()
+    return render(request, 'student_list.html', {'students': students})
+
+# Add a new Student
+def student_add(request):
+    if request.method == 'POST':
+        form = StudentForm(request.POST)
+        if form.is_valid():
+            form.save()
+            return redirect('student_list')
+    else:
+        form = StudentForm()
+    return render(request, 'student_form.html', {'form': form})
+
+# Edit a Student
+def student_edit(request, admission_number):
+    student = get_object_or_404(Student, admission_number=admission_number)
+    if request.method == 'POST':
+        form = StudentForm(request.POST, instance=student)
+        if form.is_valid():
+            form.save()
+            return redirect('student_list')
+    else:
+        form = StudentForm(instance=student)
+    return render(request, 'student_form.html', {'form': form})
+
+# Delete a Student
+def student_delete(request, admission_number):
+    student = get_object_or_404(Student, admission_number=admission_number)
+    if request.method == 'POST':
+        student.delete()
+        return redirect('student_list')
+    return render(request, 'student_confirm_delete.html', {'student': student})
+
+
+
+# views.py

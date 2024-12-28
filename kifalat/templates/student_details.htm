@@ -1,0 +1,24 @@
+<!-- student_details.html -->
+<!DOCTYPE html>
+<html>
+<head>
+    <title>Student Details</title>
+</head>
+<body>
+    <h1>Student Details</h1>
+    <p><strong>Admission Number:</strong> {{ student.admission_number }}</p>
+    <p><strong>Name:</strong> {{ student.name }}</p>
+    <p><strong>Father's Name:</strong> {{ student.father_name }}</p>
+    <p><strong>Phone:</strong> {{ student.phone }}</p>
+    <p><strong>Branch:</strong> {{ student.branch }}</p>
+    <p><strong>Course:</strong> {{ student.course }}</p>
+    <p><strong>Section:</strong> {{ student.section }}</p>
+    <p><strong>Student Type:</strong> {{ student.student_type }}</p>
+    <p><strong>Monthly Fee:</strong> {{ student.monthly_fee }}</p>
+
+    <a href="{% url 'edit_student' admission_number=student.admission_number %}">Edit</a>
+    <a href="{% url 'delete_student' admission_number=student.admission_number %}" onclick="return confirm('Are you sure you want to delete this student?')">Delete</a>
+    <br><br>
+    <a href="{% url 'home' %}">Back to Home</a>
+</body>
+</html>
