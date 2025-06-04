@@ -1,0 +1,261 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Student Records - {{ student.name }}</title>
+    <style>
+        body {
+            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+            margin: 0;
+            padding: 20px;
+            background-color: #f5f7fa;
+            color: #333;
+        }
+        .container {
+            max-width: 1200px;
+            margin: 0 auto;
+            background: white;
+            padding: 25px;
+            border-radius: 8px;
+            box-shadow: 0 2px 10px rgba(0, 0, 0, 0.1);
+        }
+        h2 {
+            color: #2c3e50;
+            margin-top: 0;
+            padding-bottom: 10px;
+            border-bottom: 1px solid #eee;
+        }
+        .student-info {
+            background: #f8f9fa;
+            padding: 15px;
+            border-radius: 5px;
+            margin-bottom: 20px;
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            flex-wrap: wrap;
+        }
+        .search-container {
+            display: flex;
+            gap: 15px;
+            margin-bottom: 20px;
+            flex-wrap: wrap;
+        }
+        .search-box {
+            flex: 1;
+            min-width: 200px;
+            position: relative;
+        }
+        .search-box input, .search-box select {
+            width: 100%;
+            padding: 10px 15px;
+            border: 1px solid #ddd;
+            border-radius: 4px;
+            font-size: 14px;
+        }
+        .search-box input:focus, .search-box select:focus {
+            outline: none;
+            border-color: #3498db;
+            box-shadow: 0 0 0 2px rgba(52, 152, 219, 0.2);
+        }
+        table {
+            width: 100%;
+            border-collapse: collapse;
+            margin-top: 20px;
+        }
+        th, td {
+            padding: 12px 15px;
+            text-align: left;
+            border-bottom: 1px solid #ddd;
+        }
+        th {
+            background-color: #3498db;
+            color: white;
+            font-weight: 500;
+            position: sticky;
+            top: 0;
+        }
+        tr:hover {
+            background-color: #f5f5f5;
+        }
+        tr:nth-child(even) {
+            background-color: #f9f9f9;
+        }
+        .status-paid {
+            color: #27ae60;
+            font-weight: 500;
+        }
+        .status-pending {
+            color: #e74c3c;
+            font-weight: 500;
+        }
+        .no-records {
+            text-align: center;
+            padding: 20px;
+            color: #7f8c8d;
+            font-style: italic;
+        }
+        .report-excellent {
+            color: #27ae60;
+        }
+        .report-good {
+            color: #f39c12;
+        }
+        .report-poor {
+            color: #e74c3c;
+        }
+        .action-buttons {
+            margin-top: 20px;
+            display: flex;
+            gap: 10px;
+        }
+        .btn {
+            padding: 8px 15px;
+            border: none;
+            border-radius: 4px;
+            cursor: pointer;
+            font-size: 14px;
+            transition: background-color 0.3s;
+        }
+        .btn-primary {
+            background-color: #3498db;
+            color: white;
+        }
+        .btn-primary:hover {
+            background-color: #2980b9;
+        }
+        .btn-export {
+            background-color: #2ecc71;
+            color: white;
+        }
+        .btn-export:hover {
+            background-color: #27ae60;
+        }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <h2>Academic Records for {{ student.name }} ({{ student.admission_number }})</h2>
+        
+        <div class="student-info">
+            <div>
+                <strong>Class:</strong> {{ student.class }} | 
+                <strong>Stream:</strong> {{ student.stream }} | 
+                <strong>Year:</strong> {{ student.year }}
+            </div>
+            <div>
+                <strong>Total Paid:</strong> Ksh. {{ total_paid|default:"0" }} | 
+                <strong>Balance:</strong> Ksh. {{ balance|default:"0" }}
+            </div>
+        </div>
+        
+        <div class="search-container">
+            <div class="search-box">
+                <input type="text" id="month-search" placeholder="Search by month...">
+            </div>
+            <div class="search-box">
+                <input type="text" id="receipt-search" placeholder="Search by receipt number...">
+            </div>
+            <div class="search-box">
+                <select id="status-filter">
+                    <option value="">All Payment Status</option>
+                    <option value="Paid">Paid</option>
+                    <option value="Pending">Pending</option>
+                    <option value="Partial">Partial</option>
+                </select>
+            </div>
+            <div class="search-box">
+                <select id="report-filter">
+                    <option value="">All Study Reports</option>
+                    <option value="Excellent">Excellent</option>
+                    <option value="Good">Good</option>
+                    <option value="Average">Average</option>
+                    <option value="Poor">Poor</option>
+                </select>
+            </div>
+        </div>
+        
+        <div style="overflow-x: auto;">
+            <table id="records-table">
+                <thead>
+                    <tr>
+                        <th>Month</th>
+                        <th>Receipt Number</th>
+                        <th>Amount Paid (Ksh.)</th>
+                        <th>Payment Status</th>
+                        <th>Study Report</th>
+                        <!-- <th>Date</th> -->
+                    </tr>
+                </thead>
+                <tbody>
+                    {% for record in records %}
+                    <tr>
+                        <td>{{ record.month }}</td>
+                        <td>{{ record.receipt_number }}</td>
+                        <td>{{ record.amount_paid }}</td>
+                        <td class="status-{{ record.payment_status|lower }}">{{ record.payment_status }}</td>
+                        <td class="report-{{ record.study_report|lower }}">{{ record.study_report }}</td>
+                        <!-- <td>{{ record.date|date:"d M Y" }}</td> -->
+                    </tr>
+                    {% empty %}
+                    <tr>
+                        <td colspan="6" class="no-records">No records found for this student.</td>
+                    </tr>
+                    {% endfor %}
+                </tbody>
+            </table>
+        </div>
+        
+        <div class="action-buttons">
+            <button class="btn btn-primary" onclick="window.print()">Print Records</button>
+            <button class="btn btn-export">Export as PDF</button>
+        </div>
+    </div>
+
+    <script>
+        // Simple table filtering functionality
+        document.addEventListener('DOMContentLoaded', function() {
+            const monthSearch = document.getElementById('month-search');
+            const receiptSearch = document.getElementById('receipt-search');
+            const statusFilter = document.getElementById('status-filter');
+            const reportFilter = document.getElementById('report-filter');
+            const table = document.getElementById('records-table');
+            const rows = table.getElementsByTagName('tr');
+            
+            function filterTable() {
+                const monthValue = monthSearch.value.toLowerCase();
+                const receiptValue = receiptSearch.value.toLowerCase();
+                const statusValue = statusFilter.value;
+                const reportValue = reportFilter.value;
+                
+                for (let i = 1; i < rows.length; i++) {
+                    const cells = rows[i].getElementsByTagName('td');
+                    if (cells.length === 0) continue;
+                    
+                    const month = cells[0].textContent.toLowerCase();
+                    const receipt = cells[1].textContent.toLowerCase();
+                    const status = cells[3].textContent;
+                    const report = cells[4].textContent;
+                    
+                    const monthMatch = month.includes(monthValue);
+                    const receiptMatch = receipt.includes(receiptValue);
+                    const statusMatch = statusValue === '' || status === statusValue;
+                    const reportMatch = reportValue === '' || report === reportValue;
+                    
+                    if (monthMatch && receiptMatch && statusMatch && reportMatch) {
+                        rows[i].style.display = '';
+                    } else {
+                        rows[i].style.display = 'none';
+                    }
+                }
+            }
+            
+            monthSearch.addEventListener('keyup', filterTable);
+            receiptSearch.addEventListener('keyup', filterTable);
+            statusFilter.addEventListener('change', filterTable);
+            reportFilter.addEventListener('change', filterTable);
+        });
+    </script>
+</body>
+</html>

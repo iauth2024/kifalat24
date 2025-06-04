@@ -6,22 +6,111 @@ from django.core.exceptions import ValidationError
 from django.http import HttpResponse
 from .models import StudentStatusUpdate, Tawassut, Kafeel, Course, Class, Section, Student, Progress, KafeelStatusUpdate
 from .forms import ProgressForm, KafeelStatusUpdateForm
-from kifalat import models
-
+from kifalat import models 
+from django.db.models import Sum
 
 def home(request):
     return render(request, 'home.html')
 
+from django.shortcuts import render, get_object_or_404
+from django.db.models import Sum
+from decimal import Decimal
+from kifalat.models import Student, Progress
+
+from django.shortcuts import render, get_object_or_404
+from django.db.models import Sum
+from decimal import Decimal
+from .models import Student, Record
+
 def student_details(request, admission_number):
     student = get_object_or_404(Student, admission_number=admission_number)
-    progress = Progress.objects.filter(student=student)
+    records = Record.objects.filter(student=student)
+    
+    # Calculate total paid from primary payments
+    total_paid = records.filter(payment_status='paid', amount_paid__gt=0).aggregate(total=Sum('amount_paid'))['total'] or Decimal('0.0')
+    # Count paid months (including advance payments)
+    paid_months = records.filter(payment_status='paid').count()
+    total_fees = student.total_fees or Decimal('0.0')
+    due_amount = total_fees - (student.monthly_fees * paid_months)
 
-    total_paid = progress.aggregate(models.Sum('amount_paid'))['amount_paid__sum'] or 0.0
-    total_fees = student.total_fees or 0.0
-    due_amount = total_fees - total_paid
-
-    context = {'student': student, 'progress': progress, 'total_paid': total_paid, 'total_fees': total_fees, 'due_amount': due_amount}
+    context = {
+        'student': student,
+        'records': records,
+        'total_paid': total_paid,
+        'total_fees': total_fees,
+        'due_amount': due_amount,
+        'paid_months': paid_months
+    }
     return render(request, 'student_details.html', context)
+
+# kifalat/views.py
+from decimal import Decimal
+from django.db.models import Sum, Q
+from django.shortcuts import render, get_object_or_404
+from .models import Student, Record
+
+def student_record_details(request, admission_number):
+    student = get_object_or_404(Student, admission_number=admission_number)
+    records = Record.objects.filter(student=student)
+
+    # Filters from GET request
+    month_filter = request.GET.get('month_filter')
+    receipt_filter = request.GET.get('receipt_filter')
+    payment_status_filter = request.GET.get('payment_status_filter')
+    study_report_filter = request.GET.get('study_report_filter')
+
+    # Apply filters
+    if month_filter:
+        records = records.filter(month=month_filter)
+    if receipt_filter:
+        records = records.filter(receipt_number__icontains=receipt_filter)
+    if payment_status_filter:
+        records = records.filter(payment_status=payment_status_filter)
+    if study_report_filter:
+        records = records.filter(study_report=study_report_filter)
+
+    # Sum only where payment_status is 'paid' (case-insensitive)
+    total_paid = records.filter(
+        Q(payment_status__iexact='paid')
+    ).aggregate(total=Sum('amount_paid'))['total'] or Decimal('0.0')
+
+    # Count paid months (even if amount is 0)
+    paid_months = records.filter(Q(payment_status__iexact='paid')).count()
+
+    # Fees and balance logic
+    total_fees = Decimal(str(student.total_fees)) if student.total_fees is not None else Decimal('0.0')
+    monthly_fees = Decimal(str(student.monthly_fees)) if student.monthly_fees is not None else Decimal('0.0')
+
+    # Option A (recommended): use total_fees - total_paid
+    balance = total_fees - total_paid
+
+    # Option B (if using monthly fees): uncomment below if that's your logic
+    # balance = total_fees - (monthly_fees * paid_months)
+
+    # Get study report options
+    study_reports = Record.objects.filter(
+        student=student
+    ).exclude(study_report='').values_list('study_report', flat=True).distinct()
+
+    record_month_choices = Record.month_CHOICES
+
+    context = {
+        'student': student,
+        'records': records,
+        'total_paid': total_paid,
+        'balance': balance,
+        'paid_months': paid_months,
+        'total_fees': total_fees,
+        'monthly_fees': monthly_fees,
+        'study_reports': study_reports,
+        'record_month_choices': record_month_choices,
+        'month_filter': month_filter,
+        'receipt_filter': receipt_filter,
+        'payment_status_filter': payment_status_filter,
+        'study_report_filter': study_report_filter
+    }
+
+    return render(request, 'student_record_details.html', context)
 
 def progress_form(request, kafeel_id, admission_number):
     kafeel = get_object_or_404(Kafeel, number=kafeel_id)
@@ -65,6 +154,20 @@ from decimal import Decimal
 
 # ... (other imports)
 
+from django.shortcuts import render, get_object_or_404
+from django.db.models import Sum
+from decimal import Decimal
+from .models import Kafeel, Student, Record
+from decimal import Decimal
+from django.db.models import Sum, Q
+from django.shortcuts import render, get_object_or_404
+from .models import Kafeel, Student, Record
+
+from decimal import Decimal
+from django.db.models import Q, Sum
+from django.shortcuts import render, get_object_or_404
+from .models import Kafeel, Student, Record
+
 def sponsor_dashboard(request, kafeel_id):
     if request.method == 'POST':
         entered_number = request.POST.get('kafeel_number')
@@ -72,34 +175,65 @@ def sponsor_dashboard(request, kafeel_id):
 
         try:
             entered_number = int(entered_number)
-            entered_phone = int(entered_phone)
+            entered_phone = str(entered_phone)
+
+            # Fetch Kafeel
             kafeel = get_object_or_404(Kafeel, number=entered_number, phone=entered_phone)
 
-            # Retrieve students associated with the kafeel
-            students = Student.objects.filter(kafeel=kafeel, sponsoring_since__isnull=False).order_by('status', 'name')
+            # Fetch sponsored students
+            students = Student.objects.filter(
+                kafeel=kafeel,
+                sponsoring_since__isnull=False
+            ).order_by('status', 'name')
 
-            # Calculate progress data for each student
+            # Initialize totals
+            kafeel_total_paid = Decimal('0.0')
+            kafeel_total_due = Decimal('0.0')
+
             for student in students:
-                student.progress_data = Progress.objects.filter(student=student)
-                # Calculate total paid
-                total_paid = student.progress_data.aggregate(Sum('amount_paid'))['amount_paid__sum'] or Decimal('0.0')
-                # Fetch total fees for the student
+                # Get records for the student
+                student.records = Record.objects.filter(student=student)
+
+                # Calculate total paid (case-insensitive filter)
+                total_paid = student.records.filter(
+                    Q(payment_status__iexact='paid')
+                ).aggregate(Sum('amount_paid'))['amount_paid__sum'] or Decimal('0.0')
+
+                # Total fees
                 total_fees = Decimal(str(student.total_fees)) if student.total_fees is not None else Decimal('0.0')
-                # Calculate due amount
+
+                # Due amount
                 due_amount = total_fees - total_paid
-                # Assign calculated values to the student object
+
+                # Attach to student object
                 student.total_paid = total_paid
                 student.total_fees = total_fees
                 student.due_amount = due_amount
 
-            # Render the sponsor_dashboard template with the kafeel and students data
-            context = {'kafeel': kafeel, 'students': students}
+                # Add to sponsor-level totals
+                kafeel_total_paid += total_paid
+                kafeel_total_due += due_amount
+
+            sponsored_students = students.filter(status='Active').count()
+
+            context = {
+                'kafeel': kafeel,
+                'students': students,
+                'kafeel_total_paid': kafeel_total_paid,
+                'kafeel_total_due': kafeel_total_due,
+                'sponsored_students': sponsored_students
+            }
+
             return render(request, 'sponsor_dashboard.html', context)
 
         except (ValueError, Kafeel.DoesNotExist):
-            return render(request, 'sponsor_dashboard_login.html', {'error_message': 'Invalid Kafeel credentials. Please try again.'})
+            return render(request, 'sponsor_dashboard_login.html', {
+                'error_message': 'Invalid Kafeel credentials. Please try again.'
+            })
 
     return render(request, 'sponsor_dashboard_login.html', {'kafeel_id': kafeel_id})
+
+
 
 def get_students(request):
     # Your view logic for get_students goes here
@@ -146,10 +280,7 @@ def create_progress(request):
 from django.shortcuts import render
 from .models import Student, Record
 
-def student_detail(request, admission_number):
-    student = Student.objects.get(admission_number=admission_number)
-    records = Record.objects.filter(student=student)
-    return render(request, 'student_detail.html', {'student': student, 'records': records})
+
 
 from django.shortcuts import render
 from .models import Record

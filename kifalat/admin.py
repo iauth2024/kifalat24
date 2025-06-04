@@ -14,7 +14,8 @@ class TawassutAdmin(admin.ModelAdmin):
 @admin.register(Kafeel)
 class KafeelAdmin(admin.ModelAdmin):
     actions = ['get_students_action']
-
+    list_display = ('number', 'name', 'phone', 'address', 'tawassut_link', 'status')
+    search_fields = ['number', 'name', 'phone', 'address', 'tawassut__name', 'status']
     def get_students_action(self, request, queryset):
         for kafeel in queryset:
             student_list = Student.objects.filter(kafeel=kafeel, status='Active')
@@ -95,8 +96,12 @@ class RecordInline(admin.TabularInline):
 @admin.register(Student)
 class StudentAdmin(admin.ModelAdmin):
     inlines = [RecordInline]
-    list_display = ['admission_number', 'name', 'father_name', 'phone', 'address', 'course', 'class_field', 'section', 'kafeel', 'sponsoring_since', 'monthly_fees', 'total_fees', 'status']
-    search_fields = ['admission_number', 'name']
+    list_display = [
+        'admission_number', 'name', 'father_name', 'phone', 'address', 'course', 
+        'class_field', 'section', 'kafeel', 'sponsoring_since', 'monthly_fees', 'total_fees', 'status'
+    ]
+    search_fields = ['admission_number', 'name', 'father_name', 'phone', 'address', 'course', 'class_field', 'section', 'kafeel', 'sponsoring_since', 'monthly_fees', 'total_fees', 'status']
+    
     ordering = ['status', 'name']  # Sorting students alphabetically by status and then by name
     def get_inline_instances(self, request, obj=None):
         inline_instances = super().get_inline_instances(request, obj)
@@ -110,8 +115,9 @@ class StudentAdmin(admin.ModelAdmin):
 @admin.register(Record)
 class RecordAdmin(admin.ModelAdmin):
     list_display = ('student_with_admission_number', 'get_month_display')
-    search_fields = ['student__admission_number', 'student__name']  # Add search fields for admission number and student name
-
+    search_fields = [
+        'student__admission_number', 'student__name', 'student__father_name', 'student__phone', 'month'
+    ]
     def student_with_admission_number(self, obj):
         return f"{obj.student.name}'s record for {obj.get_month_display()} ({obj.student.admission_number})"
     student_with_admission_number.short_description = 'Record'

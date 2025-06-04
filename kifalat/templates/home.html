@@ -1,5 +1,3 @@
-<!-- kifalat/templates/home.html -->
-
 <!DOCTYPE html>
 <html lang="en">
 <head>
@@ -8,42 +6,187 @@
     <title>Home Page</title>
     <style>
         body {
-            font-family: Arial, sans-serif;
-            margin: 20px;
+            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+            margin: 0;
+            padding: 20px;
+            background-color: #f5f7fa;
+            color: #333;
             text-align: center;
+        }
+        
+        .container {
+            max-width: 600px;
+            margin: 50px auto;
+            padding: 30px;
+            background: white;
+            border-radius: 8px;
+            box-shadow: 0 4px 6px rgba(0, 0, 0, 0.1);
+            position: relative;
+        }
+        
+        h1 {
+            color: #2c3e50;
+            margin-bottom: 30px;
         }
 
         .button-container {
             display: flex;
             flex-direction: column;
+            gap: 15px;
             align-items: center;
         }
 
         .button {
-            margin: 10px;
-            padding: 10px 20px;
+            width: 80%;
+            padding: 12px 20px;
             font-size: 16px;
+            font-weight: 500;
             text-decoration: none;
             color: #fff;
-            background-color: #007BFF;
+            background-color: #3498db;
             border: none;
-            border-radius: 5px;
+            border-radius: 6px;
             cursor: pointer;
-            transition: background-color 0.3s ease;
+            transition: all 0.3s ease;
+            box-shadow: 0 2px 4px rgba(0, 0, 0, 0.1);
         }
 
         .button:hover {
-            background-color: #0056b3;
+            background-color: #2980b9;
+            transform: translateY(-2px);
+            box-shadow: 0 4px 8px rgba(0, 0, 0, 0.15);
+        }
+        
+        .button-admin {
+            background-color: #e74c3c;
+            display: none; /* Hidden by default */
+        }
+        
+        .button-admin:hover {
+            background-color: #c0392b;
+        }
+        
+        .auth-info {
+            margin-top: 30px;
+            padding-top: 20px;
+            border-top: 1px solid #eee;
+            font-size: 14px;
+            color: #7f8c8d;
+        }
+        
+        .auth-info a {
+            color: #3498db;
+            text-decoration: none;
+        }
+        
+        .auth-info a:hover {
+            text-decoration: underline;
+        }
+        
+        .secret-dot {
+            position: absolute;
+            top: 15px;
+            right: 15px;
+            width: 6px;
+            height: 6px;
+            border-radius: 50%;
+            background-color: rgba(0, 0, 0, 0.2);
+            cursor: pointer;
+            transition: all 0.3s ease;
+        }
+        
+        .secret-dot:hover {
+            background-color: rgba(0, 0, 0, 0.4);
+            transform: scale(1.3);
+        }
+        
+        .click-counter {
+            position: absolute;
+            top: -5px;
+            right: -5px;
+            background-color: #e74c3c;
+            color: white;
+            border-radius: 50%;
+            width: 18px;
+            height: 18px;
+            font-size: 12px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            display: none;
         }
     </style>
 </head>
 <body>
-    <h1>Welcome to Kifalat Application</h1>
+    <div class="container">
+        <!-- Secret dot that's barely visible -->
+        <div class="secret-dot" id="secretButton">
+            <div class="click-counter" id="clickCounter"></div>
+        </div>
+        
+        <h1>Welcome to Kifalat Application</h1>
 
-    <div class="button-container">
-        <a href="{% url 'sponsor_dashboard' 1 %}" class="button">Sponsor Dashboard</a>
-        <a href="{% url 'admin:index' %}" class="button" target="_blank">Admin</a>
-        <a href="{% url  'student_details' admission_number=1 %}" class="button">Student Details</a>
+        <div class="button-container">
+            <a href="{% url 'sponsor_dashboard' 1 %}" class="button">Sponsor Dashboard</a>
+            
+            {% if user.is_authenticated and user.is_staff %}
+                <a href="{% url 'admin:index' %}" class="button button-admin" id="adminButton" target="_blank">Admin Portal</a>
+            {% endif %}
+        </div>
+        
+        <div class="auth-info">
+            {% if user.is_authenticated %}
+                Welcome, {{ user.username }}! | 
+                <a href="{% url 'admin:logout' %}">Logout</a>
+            {% else %}
+                <a href="{% url 'admin:login' %}">Staff Login</a>
+            {% endif %}
+        </div>
     </div>
+
+    <script>
+        document.addEventListener('DOMContentLoaded', function() {
+            const secretButton = document.getElementById('secretButton');
+            const clickCounter = document.getElementById('clickCounter');
+            const adminButton = document.getElementById('adminButton');
+            
+            if (adminButton) { // Only if admin button exists (user is staff)
+                let clickCount = 0;
+                const requiredClicks = 3; // Number of clicks to reveal
+                
+                secretButton.addEventListener('click', function(e) {
+                    e.stopPropagation();
+                    clickCount++;
+                    
+                    // Show click counter
+                    clickCounter.textContent = clickCount;
+                    clickCounter.style.display = 'flex';
+                    
+                    if (clickCount >= requiredClicks) {
+                        adminButton.style.display = 'block';
+                        secretButton.style.display = 'none';
+                        
+                        // Hide again after 30 seconds
+                        setTimeout(() => {
+                            adminButton.style.display = 'none';
+                            clickCount = 0;
+                            secretButton.style.display = 'block';
+                            clickCounter.style.display = 'none';
+                        }, 30000);
+                    }
+                    
+                    // Reset counter if not clicked again within 2 seconds
+                    clearTimeout(window.clickTimeout);
+                    window.clickTimeout = setTimeout(() => {
+                        clickCount = 0;
+                        clickCounter.style.display = 'none';
+                    }, 2000);
+                });
+            } else {
+                // Hide the secret dot if user isn't staff
+                secretButton.style.display = 'none';
+            }
+        });
+    </script>
 </body>
 </html>

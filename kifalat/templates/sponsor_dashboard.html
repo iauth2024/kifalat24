@@ -1,41 +1,513 @@
-<!-- sponsor_dashboard.html -->
 <!DOCTYPE html>
 <html lang="en">
 <head>
     <meta charset="UTF-8">
-    <title>Sponsor Dashboard</title>
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Sponsor Dashboard - {{ kafeel.name }}</title>
+    <link href="https://fonts.googleapis.com/css2?family=Poppins:wght@300;400;500;600;700&display=swap" rel="stylesheet">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0-beta3/css/all.min.css">
+    <style>
+        :root {
+            --primary-color: #4361ee;
+            --secondary-color: #3a0ca3;
+            --success-color: #4cc9f0;
+            --warning-color: #f8961e;
+            --danger-color: #f72585;
+            --light-color: #f8f9fa;
+            --dark-color: #212529;
+            --border-radius: 10px;
+            --box-shadow: 0 4px 20px rgba(0, 0, 0, 0.08);
+            --transition: all 0.3s ease;
+        }
+
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+
+        body {
+            font-family: 'Poppins', sans-serif;
+            background-color: #f5f7ff;
+            color: var(--dark-color);
+            line-height: 1.6;
+        }
+
+        .container {
+            max-width: 1200px;
+            margin: 0 auto;
+            padding: 20px;
+        }
+
+        .dashboard-header {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            margin-bottom: 30px;
+            flex-wrap: wrap;
+            gap: 20px;
+        }
+
+        h1 {
+            color: var(--primary-color);
+            font-size: 28px;
+            font-weight: 600;
+        }
+
+        .kafeel-info {
+            display: flex;
+            align-items: center;
+            gap: 15px;
+            background: white;
+            padding: 15px 20px;
+            border-radius: var(--border-radius);
+            box-shadow: var(--box-shadow);
+        }
+
+        .kafeel-avatar {
+            width: 50px;
+            height: 50px;
+            background-color: var(--primary-color);
+            color: white;
+            border-radius: 50%;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-size: 20px;
+            font-weight: 600;
+        }
+
+        .kafeel-info h3 {
+            font-size: 18px;
+            margin-bottom: 5px;
+        }
+
+        .kafeel-info p {
+            color: #6c757d;
+            font-size: 14px;
+        }
+
+        .card {
+            background: white;
+            border-radius: var(--border-radius);
+            box-shadow: var(--box-shadow);
+            margin-bottom: 30px;
+            overflow: hidden;
+        }
+
+        .card-header {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            padding: 20px;
+            border-bottom: 1px solid rgba(0, 0, 0, 0.05);
+            flex-wrap: wrap;
+            gap: 15px;
+        }
+
+        .card-header h2 {
+            font-size: 20px;
+            font-weight: 600;
+            display: flex;
+            align-items: center;
+            gap: 10px;
+        }
+
+        .card-header h2 i {
+            color: var(--primary-color);
+        }
+
+        .btn {
+            display: inline-flex;
+            align-items: center;
+            gap: 8px;
+            padding: 8px 16px;
+            border-radius: 6px;
+            font-size: 14px;
+            font-weight: 500;
+            cursor: pointer;
+            transition: var(--transition);
+            text-decoration: none;
+            border: none;
+        }
+
+        .btn-primary {
+            background-color: var(--primary-color);
+            color: white;
+        }
+
+        .btn-primary:hover {
+            background-color: var(--secondary-color);
+            transform: translateY(-2px);
+        }
+
+        .btn-outline {
+            background: transparent;
+            border: 1px solid var(--primary-color);
+            color: var(--primary-color);
+        }
+
+        .btn-outline:hover {
+            background-color: var(--primary-color);
+            color: white;
+        }
+
+        .table-responsive {
+            overflow-x: auto;
+            padding: 0 20px 20px;
+        }
+
+        table {
+            width: 100%;
+            border-collapse: collapse;
+            margin-top: 15px;
+        }
+
+        th, td {
+            padding: 15px;
+            text-align: left;
+            border-bottom: 1px solid rgba(0, 0, 0, 0.05);
+        }
+
+        th {
+            font-weight: 600;
+            color: var(--primary-color);
+            background-color: rgba(67, 97, 238, 0.05);
+        }
+
+        tr:hover {
+            background-color: rgba(67, 97, 238, 0.02);
+        }
+
+        .status-badge {
+            display: inline-block;
+            padding: 5px 10px;
+            border-radius: 20px;
+            font-size: 12px;
+            font-weight: 500;
+        }
+
+        .status-active {
+            background-color: rgba(76, 201, 240, 0.1);
+            color: var(--success-color);
+        }
+
+        .status-inactive {
+            background-color: rgba(247, 37, 133, 0.1);
+            color: var(--danger-color);
+        }
+
+        .amount {
+            font-weight: 600;
+        }
+
+        .paid-amount {
+            color: var(--success-color);
+        }
+
+        .due-amount {
+            color: var(--warning-color);
+        }
+
+        .empty-state {
+            text-align: center;
+            padding: 40px 20px;
+            color: #6c757d;
+        }
+
+        .empty-state i {
+            font-size: 40px;
+            margin-bottom: 15px;
+            color: #adb5bd;
+        }
+
+        .empty-state h3 {
+            font-size: 18px;
+            margin-bottom: 10px;
+        }
+
+        .summary-cards {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(250px, 1fr));
+            gap: 20px;
+            padding: 20px;
+        }
+
+        .summary-card {
+            background: white;
+            padding: 20px;
+            border-radius: var(--border-radius);
+            box-shadow: 0 4px 10px rgba(0, 0, 0, 0.05);
+            transition: var(--transition);
+        }
+
+        .summary-card:hover {
+            transform: translateY(-5px);
+            box-shadow: 0 8px 20px rgba(0, 0, 0, 0.1);
+        }
+
+        .summary-card h3 {
+            font-size: 16px;
+            color: #6c757d;
+            margin-bottom: 15px;
+        }
+
+        .summary-card p {
+            font-size: 28px;
+            font-weight: 700;
+        }
+
+        .search-filter-container {
+            display: flex;
+            gap: 15px;
+            margin-bottom: 20px;
+            flex-wrap: wrap;
+        }
+
+        .search-box {
+            flex: 1;
+            min-width: 250px;
+            position: relative;
+        }
+
+        .search-box input, .search-box select {
+            width: 100%;
+            padding: 10px 15px;
+            padding-left: 40px;
+            border: 1px solid #e0e0e0;
+            border-radius: var(--border-radius);
+            font-size: 14px;
+            transition: var(--transition);
+        }
+
+        .search-box input:focus, .search-box select:focus {
+            outline: none;
+            border-color: var(--primary-color);
+            box-shadow: 0 0 0 3px rgba(67, 97, 238, 0.1);
+        }
+
+        .search-box i {
+            position: absolute;
+            left: 15px;
+            top: 50%;
+            transform: translateY(-50%);
+            color: #adb5bd;
+        }
+
+        .filter-box {
+            min-width: 200px;
+        }
+
+        .pagination {
+            display: flex;
+            justify-content: center;
+            gap: 10px;
+            margin-top: 20px;
+            padding: 20px;
+        }
+
+        .page-item {
+            list-style: none;
+        }
+
+        .page-link {
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            width: 40px;
+            height: 40px;
+            border-radius: 6px;
+            background: white;
+            color: var(--dark-color);
+            text-decoration: none;
+            border: 1px solid #e0e0e0;
+            transition: var(--transition);
+        }
+
+        .page-link:hover, .page-link.active {
+            background: var(--primary-color);
+            color: white;
+            border-color: var(--primary-color);
+        }
+
+        @media (max-width: 768px) {
+            .dashboard-header {
+                flex-direction: column;
+                align-items: flex-start;
+            }
+            
+            .search-filter-container {
+                flex-direction: column;
+            }
+            
+            .search-box, .filter-box {
+                min-width: 100%;
+            }
+        }
+    </style>
 </head>
 <body>
-    <h1>Sponsor Dashboard for {{ kafeel.name }}</h1>
+    <div class="container">
+        <div class="dashboard-header">
+            <h1>Sponsor Dashboard</h1>
+            <div class="kafeel-info">
+                <div class="kafeel-avatar">{{ kafeel.name|first|upper }}</div>
+                <div>
+                    <h3>{{ kafeel.name }}</h3>
+                    <p>Kafeel ID: {{ kafeel.number }}</p>
+                </div>
+            </div>
+        </div>
 
-    <h2>Students Sponsored</h2>
-    <table>
-        <thead>
-            <tr>
-                <th>Name</th>
-                <th>Status</th>
-                <th>Total Fees</th>
-                <th>Total Paid</th>
-                <th>Due Amount</th>
-                <th>Action</th>
-            </tr>
-        </thead>
-        <tbody>
-            {% for student in students %}
-            <tr>
-                <td>{{ student.name }}</td>
-                <td>{{ student.status }}</td>
-                <td>{{ student.total_fees }}</td>
-                <td>{{ student.total_paid }}</td>
-                <td>{{ student.due_amount }}</td>
-                <td><a href="{% url 'student_details' admission_number=student.admission_number %}">View Details</a></td>
-            </tr>
-            {% empty %}
-            <tr>
-                <td colspan="6">No students found.</td>
-            </tr>
-            {% endfor %}
-        </tbody>
-    </table>
+        <!-- Students Sponsored Section -->
+        <div class="card">
+            <div class="card-header">
+                <h2><i class="fas fa-users"></i> Students Sponsored</h2>
+                <div>
+                    <button class="btn btn-outline"><i class="fas fa-download"></i> Export</button>
+                    <button class="btn btn-primary"><i class="fas fa-plus"></i> Add Student</button>
+                </div>
+            </div>
+
+            <div class="search-filter-container">
+                <div class="search-box">
+                    <i class="fas fa-search"></i>
+                    <input type="text" id="studentSearch" placeholder="Search students by name or admission number...">
+                </div>
+                <div class="filter-box">
+                    <div class="search-box">
+                        <i class="fas fa-filter"></i>
+                        <select id="statusFilter">
+                            <option value="">All Statuses</option>
+                            <option value="Active">Active</option>
+                            <option value="Inactive">Inactive</option>
+                        </select>
+                    </div>
+                </div>
+            </div>
+
+            <div class="table-responsive">
+                <table id="studentsTable">
+                    <thead>
+                        <tr>
+                            <th>Name</th>
+                            <th>Status</th>
+                            <th>Total Fees</th>
+                            <th>Total Paid</th>
+                            <th>Due Amount</th>
+                            <th>Action</th>
+                        </tr>
+                    </thead>
+                    <tbody>
+                        {% for student in students %}
+                        <tr>
+                            <td>
+                                <strong>{{ student.name }}</strong>
+                                <div style="font-size: 12px; color: #6c757d;">Adm: {{ student.admission_number }}</div>
+                            </td>
+                            <td>
+                                <span class="status-badge {% if student.status == 'Active' %}status-active{% else %}status-inactive{% endif %}">
+                                    {{ student.status }}
+                                </span>
+                            </td>
+                            <td class="amount">Ksh. {{ student.total_fees|floatformat:2 }}</td>
+                            <td class="amount paid-amount">Ksh. {{ student.total_paid|floatformat:2 }}</td>
+                            <td class="amount due-amount">Ksh. {{ student.due_amount|floatformat:2 }}</td>
+                            <td>
+                                <a href="{% url 'student_record_details' student.admission_number %}" class="btn btn-primary">
+                                    <i class="fas fa-eye"></i> View
+                                </a>
+                            </td>
+                        </tr>
+                        {% empty %}
+                        <tr>
+                            <td colspan="6">
+                                <div class="empty-state">
+                                    <i class="fas fa-user-graduate"></i>
+                                    <h3>No Students Found</h3>
+                                    <p>You currently don't have any sponsored students.</p>
+                                </div>
+                            </td>
+                        </tr>
+                        {% endfor %}
+                    </tbody>
+                </table>
+            </div>
+
+            <!-- Pagination -->
+            <div class="pagination">
+                <li class="page-item"><a href="#" class="page-link"><i class="fas fa-chevron-left"></i></a></li>
+                <li class="page-item"><a href="#" class="page-link active">1</a></li>
+                <li class="page-item"><a href="#" class="page-link">2</a></li>
+                <li class="page-item"><a href="#" class="page-link">3</a></li>
+                <li class="page-item"><a href="#" class="page-link"><i class="fas fa-chevron-right"></i></a></li>
+            </div>
+        </div>
+
+        <!-- Sponsorship Summary Section -->
+        <div class="card">
+            <div class="card-header">
+                <h2><i class="fas fa-chart-line"></i> Sponsorship Summary</h2>
+            </div>
+            <div class="summary-cards">
+                <div class="summary-card">
+                    <h3><i class="fas fa-users" style="color: var(--primary-color);"></i> Total Students</h3>
+                    <p>{{ students|length }}</p>
+                </div>
+                <div class="summary-card">
+                    <h3><i class="fas fa-check-circle" style="color: var(--success-color);"></i> Total Paid</h3>
+                    <p style="color: var(--success-color);">Ksh. {{ kafeel_total_paid|floatformat:2 }}</p>
+                </div>
+                <div class="summary-card">
+                    <h3><i class="fas fa-exclamation-circle" style="color: var(--warning-color);"></i> Pending Amount</h3>
+                    <p style="color: var(--warning-color);">Ksh. {{ kafeel_total_due|floatformat:2 }}</p>
+                </div>
+                <div class="summary-card">
+                    <h3><i class="fas fa-graduation-cap" style="color: var(--danger-color);"></i> Active Students</h3>
+                    <p style="color: var(--primary-color);">{{ active_students_count|default:"0" }}</p>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <script>
+        document.addEventListener('DOMContentLoaded', function() {
+            // Student search functionality
+            const studentSearch = document.getElementById('studentSearch');
+            const statusFilter = document.getElementById('statusFilter');
+            const studentsTable = document.getElementById('studentsTable');
+            const rows = studentsTable.getElementsByTagName('tbody')[0].getElementsByTagName('tr');
+            
+            function filterStudents() {
+                const searchValue = studentSearch.value.toLowerCase();
+                const statusValue = statusFilter.value;
+                
+                for (let row of rows) {
+                    const name = row.cells[0].textContent.toLowerCase();
+                    const admission = row.cells[0].getElementsByTagName('div')[0].textContent.toLowerCase();
+                    const status = row.cells[1].textContent;
+                    
+                    const nameMatch = name.includes(searchValue) || admission.includes(searchValue);
+                    const statusMatch = statusValue === '' || status === statusValue;
+                    
+                    if (nameMatch && statusMatch) {
+                        row.style.display = '';
+                    } else {
+                        row.style.display = 'none';
+                    }
+                }
+            }
+            
+            studentSearch.addEventListener('keyup', filterStudents);
+            statusFilter.addEventListener('change', filterStudents);
+            
+            // Add animation to summary cards
+            const summaryCards = document.querySelectorAll('.summary-card');
+            summaryCards.forEach((card, index) => {
+                card.style.animationDelay = `${index * 0.1}s`;
+                card.classList.add('animate__animated', 'animate__fadeInUp');
+            });
+        });
+    </script>
 </body>
 </html>

@@ -5,6 +5,7 @@ from .views import (
     complete_details, tawassut_delete, tawassut_edit, tawassut_list,
     student_list, student_edit, student_delete
 )
+from kifalat import views
 
 urlpatterns = [
     path('', home, name='home'),
@@ -13,7 +14,7 @@ urlpatterns = [
     path('student_details/<int:admission_number>/', student_details, name='student_details'),
     path('progress_form/<int:kafeel_id>/<int:admission_number>/', progress_form, name='progress_form'),
     path('complete_details/<int:kafeel_id>/<int:admission_number>/', complete_details, name='complete_details'),
-
+    path('student_records/<str:admission_number>/', views.student_record_details, name='student_record_details'),
     # Tawassut URLs
     path('tawassut/', tawassut_list, name='tawassut_list'),
     path('tawassut/edit/<int:id>/', tawassut_edit, name='tawassut_edit'),

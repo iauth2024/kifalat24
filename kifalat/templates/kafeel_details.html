@@ -1,0 +1,55 @@
+<!-- kafeel_details.html -->
+<!DOCTYPE html>
+<html>
+<head>
+    <title>Kafeel Details</title>
+    <style>
+        table { border-collapse: collapse; width: 100%; }
+        th, td { border: 1px solid black; padding: 8px; text-align: left; }
+        th { background-color: #f2f2f2; }
+    </style>
+</head>
+<body>
+    <h1>Kafeel Details: {{ kafeel.name }}</h1>
+    <p><strong>Number:</strong> {{ kafeel.number }}</p>
+    <p><strong>Phone:</strong> {{ kafeel.phone }}</p>
+    <p><strong>Address:</strong> {{ kafeel.address }}</p>
+    <p><strong>Status:</strong> {{ kafeel.status }}</p>
+    <p><strong>Total Paid:</strong> {{ kafeel_total_paid }}</p>
+    <p><strong>Students Sponsored:</strong> {{ sponsored_students }}</p>
+
+    <h2>Sponsored Students</h2>
+    <table>
+        <thead>
+            <tr>
+                <th>Name</th>
+                <th>Admission Number</th>
+                <th>Status</th>
+                <th>Total Fees</th>
+                <th>Total Paid</th>
+                <th>Due Amount</th>
+                <th>Action</th>
+            </tr>
+        </thead>
+        <tbody>
+            {% for student in students %}
+            <tr>
+                <td>{{ student.name }}</td>
+                <td>{{ student.admission_number }}</td>
+                <td>{{ student.status }}</td>
+                <td>{{ student.total_fees }}</td>
+                <td>{{ student.get_total_paid }}</td>
+                <td>{{ student.get_due_amount }}</td>
+                <td><a href="{% url 'student_detail' admission_number=student.admission_number %}">View</a></td>
+            </tr>
+            {% empty %}
+            <tr>
+                <td colspan="7" style="text-align:center;">No students sponsored.</td>
+            </tr>
+            {% endfor %}
+        </tbody>
+    </table>
+
+    <a href="{% url 'home' %}">Back to Home</a>
+</body>
+</html>

@@ -80,6 +80,15 @@ class Student(models.Model):
         # Calculate total fees based on monthly fees
         self.total_fees = self.monthly_fees * 12
         super().save(*args, **kwargs)
+    def get_total_paid(self):
+        return sum(record.amount_paid for record in self.record_set.filter(payment_status='paid') if record.amount_paid)
+
+    def get_due_amount(self):
+        return self.total_fees - self.get_total_paid()
+
+    def save(self, *args, **kwargs):
+        self.total_fees = self.monthly_fees * 12
+        super().save(*args, **kwargs)
 
 from django.db import models
 
@@ -172,6 +181,8 @@ from django.db import models
 import calendar
 
 from django.db import models
+from django.core.exceptions import ValidationError
+import calendar
 
 class Record(models.Model):
     month_CHOICES = [
@@ -189,13 +200,25 @@ class Record(models.Model):
         ('Dhu al-Hijjah', 'Dhu al-Hijjah'),
     ]
 
-    student = models.ForeignKey(Student, on_delete=models.CASCADE)
+    student = models.ForeignKey('Student', on_delete=models.CASCADE)
     month = models.CharField(max_length=20, choices=month_CHOICES)
     receipt_number = models.CharField(max_length=255, blank=True, default='--')
     amount_paid = models.DecimalField(max_digits=10, decimal_places=2, null=True, blank=True, default=0)
-    study_report = models.TextField(max_length=255,blank=True, default='') 
+    study_report = models.TextField(max_length=255, blank=True, default='')
     paid_date = models.DateField(null=True, blank=True)
-    payment_status = models.CharField(max_length=10, choices=Progress.PAID_CHOICES, default='unpaid', blank=False)
-    
+    payment_status = models.CharField(max_length=10, choices=[
+        ('paid', 'Paid'),
+        ('unpaid', 'Unpaid'),
+    ], default='unpaid', blank=False)
+
+    def clean(self):
+        # Allow amount_paid=0 with payment_status='paid' for advance payments
+        if self.payment_status == 'unpaid' and self.amount_paid and self.amount_paid > 0:
+            raise ValidationError("Payment status 'Unpaid' cannot have a non-zero amount paid.")
+
+    def save(self, *args, **kwargs):
+        self.full_clean()
+        super().save(*args, **kwargs)
+
     def __str__(self):
         return f"{self.student.name}'s record for {self.month}"
